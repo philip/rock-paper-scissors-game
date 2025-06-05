@@ -40,13 +40,10 @@ function App() {
     loadStats();
   }, [loadStats]);
 
-  const playRound = async () => {
+  const playRound = async (userChoice: GameChoice) => {
     // Start animation and game
     setIsAnimating(true);
     setGameState('playing');
-    
-    // Random user choice
-    const userChoice = choices[Math.floor(Math.random() * choices.length)];
     
     try {
       // Simulate button flash animation
@@ -90,7 +87,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex flex-col items-center justify-center p-4">
-      <div className="text-center space-y-8 max-w-md w-full">
+      <div className="text-center space-y-8 max-w-lg w-full">
         <h1 className="text-4xl font-bold text-gray-800 mb-8">
           Rock Paper Scissors
         </h1>
@@ -124,15 +121,24 @@ function App() {
         {/* Main Game Area */}
         <div className="space-y-6">
           {gameState === 'ready' && (
-            <Button
-              onClick={playRound}
-              className={`w-48 h-48 rounded-full text-2xl font-bold bg-green-500 hover:bg-green-600 text-white shadow-lg transition-all duration-200 ${
-                isAnimating ? 'animate-pulse bg-green-300 scale-110' : ''
-              }`}
-              disabled={gameState !== 'ready'}
-            >
-              Play!
-            </Button>
+            <div className="flex flex-col space-y-4">
+              <div className="text-lg font-semibold text-gray-700 mb-2">Choose your move:</div>
+              <div className="flex justify-center space-x-4">
+                {choices.map((choice) => (
+                  <Button
+                    key={choice}
+                    onClick={() => playRound(choice)}
+                    className={`w-32 h-32 rounded-full text-lg font-bold bg-green-500 hover:bg-green-600 text-white shadow-lg transition-all duration-200 flex flex-col items-center justify-center ${
+                      isAnimating ? 'animate-pulse bg-green-300 scale-110' : ''
+                    }`}
+                    disabled={gameState !== 'ready'}
+                  >
+                    <span className="text-3xl mb-1">{choiceEmojis[choice]}</span>
+                    <span className="text-sm">{choiceLabels[choice]}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
           )}
 
           {gameState === 'playing' && (
