@@ -26,6 +26,7 @@ function App() {
   const [gameResult, setGameResult] = useState<PlayGameResponse | null>(null);
   const [stats, setStats] = useState<GameStats | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [currentPlayingAnimation, setCurrentPlayingAnimation] = useState('Rock...');
 
   const loadStats = useCallback(async () => {
     try {
@@ -45,9 +46,20 @@ function App() {
     setIsAnimating(true);
     setGameState('playing');
     
+    // Start the playing animation sequence
+    setCurrentPlayingAnimation('Rock...');
+    const animationSteps = ['Rock...', 'Paper...', 'Scissors...'];
+    let stepIndex = 0;
+    
+    const animationInterval = setInterval(() => {
+      stepIndex = (stepIndex + 1) % animationSteps.length;
+      setCurrentPlayingAnimation(animationSteps[stepIndex]);
+    }, 200);
+    
     try {
       // Simulate button flash animation
       setTimeout(async () => {
+        clearInterval(animationInterval);
         setIsAnimating(false);
         
         // Call the API
@@ -66,6 +78,7 @@ function App() {
       }, 600); // Flash duration
       
     } catch (error) {
+      clearInterval(animationInterval);
       console.error('Failed to play game:', error);
       setGameState('ready');
       setIsAnimating(false);
@@ -128,13 +141,12 @@ function App() {
                   <Button
                     key={choice}
                     onClick={() => playRound(choice)}
-                    className={`w-32 h-32 rounded-full text-lg font-bold bg-green-500 hover:bg-green-600 text-white shadow-lg transition-all duration-200 flex flex-col items-center justify-center ${
-                      isAnimating ? 'animate-pulse bg-green-300 scale-110' : ''
+                    className={`w-32 h-32 rounded-full border-2 border-gray-300 bg-transparent hover:bg-gray-50 hover:border-gray-400 shadow-lg transition-all duration-200 flex items-center justify-center ${
+                      isAnimating ? 'animate-pulse bg-gray-100 scale-110' : ''
                     }`}
                     disabled={gameState !== 'ready'}
                   >
-                    <span className="text-3xl mb-1">{choiceEmojis[choice]}</span>
-                    <span className="text-sm">{choiceLabels[choice]}</span>
+                    <span className="text-6xl">{choiceEmojis[choice]}</span>
                   </Button>
                 ))}
               </div>
@@ -143,8 +155,10 @@ function App() {
 
           {gameState === 'playing' && (
             <div className="flex items-center justify-center">
-              <div className="w-48 h-48 rounded-full bg-green-300 flex items-center justify-center animate-pulse">
-                <span className="text-6xl">🎲</span>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-gray-700 animate-pulse">
+                  {currentPlayingAnimation}
+                </div>
               </div>
             </div>
           )}
